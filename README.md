@@ -18,7 +18,9 @@ You should see something that looks like:
 Take the hash and included it n a TLSA record in your domain like the following
 
 Type: TLSA
+
 Host: _25._tcp.mail
+
 Value: 3 1 1 your_64_character_hash_here
 
 #Note: When you click on the dns button, it make show this as timed out.  Ignore it as you are using the generate CA certs to create hash.
