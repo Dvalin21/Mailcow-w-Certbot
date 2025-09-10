@@ -9,6 +9,7 @@ openssl s_client -connect mail.example.com:465 -showcerts < /dev/null | openssl 
 Step 2
 
 Generate the TLSA hash:
+
 openssl x509 -in /tmp/server_cert.der -inform DER -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256
 
 You should see something that looks like:
