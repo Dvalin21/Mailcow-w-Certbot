@@ -2,7 +2,8 @@ Since you are using the certs from certbot, you may have to manually gen the has
 
 Step 1 # Note, dont use sudo
 
-Save the certificate with proper permissions
+Save the certificate with proper permissions:
+
 openssl s_client -connect mail.example.com:465 -showcerts < /dev/null | openssl x509 -outform DER > /tmp/server_cert.der
 
 Step 2
