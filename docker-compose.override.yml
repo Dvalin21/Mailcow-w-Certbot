@@ -1,0 +1,35 @@
+services:
+  certbot-porkbun:
+    image: infinityofspace/certbot_dns_porkbun:latest
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ}
+      PORKBUN_API_KEY: ${PORKBUN_API_KEY}
+      PORKBUN_SECRET_API_KEY: ${PORKBUN_SECRET_API_KEY}
+      EMAIL: ${CERTBOT_EMAIL}
+      DOMAINS: ${MAILCOW_HOSTNAME}
+      PROPAGATION_TIME: 600
+    volumes:
+      - ./data/assets/ssl:/etc/letsencrypt:rw,z
+      - ./data/conf/certbot:/etc/letsencrypt-renewal-hooks:ro,z
+    command:
+      - certonly
+      - --authenticator
+      - dns-porkbun
+      - --dns-porkbun-key
+      - ${PORKBUN_API_KEY}
+      - --dns-porkbun-secret
+      - ${PORKBUN_SECRET_API_KEY}
+      - --dns-porkbun-propagation-seconds
+      - "600"
+      - --agree-tos
+      - --non-interactive
+      - --email
+      - ${CERTBOT_EMAIL}
+      - -d
+      - ${MAILCOW_HOSTNAME}
+      - --deploy-hook
+      - /etc/letsencrypt-renewal-hooks/deploy.sh
+
+    networks:
+      - mailcow-network
