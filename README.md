@@ -1,33 +1,48 @@
-Since you are using the certs from certbot, you may have to manually gen the hash for the TLSA record
+# Mailcow Certbot Porkbun Integration
 
-Step 1 # Note, dont use sudo
+This repository provides a Mailcow Docker Compose override for automated **Let's Encrypt certificate issuance and renewal** using the Porkbun DNS API. Certificates are automatically deployed to Mailcow's required SSL paths (`cert.pem` and `key.pem`) and picked up by the Watchdog container.
 
-Save the certificate with proper permissions:
+---
 
-openssl s_client -connect mail.example.com:465 -showcerts < /dev/null | openssl x509 -outform DER > /tmp/server_cert.der
+## Features
 
-Step 2
+- Automatic certificate issuance via **DNS-01 challenge** using Porkbun API
+- Deployment to Mailcow’s `data/assets/ssl` folder with correct permissions
+- Compatible with Watchdog for automatic service reloads
+- Fully configurable via `mailcow.conf` variables
+- Supports propagation adjustment for DNS updates
 
-Generate the TLSA hash:
+---
 
-openssl x509 -in /tmp/server_cert.der -inform DER -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256
+## Prerequisites
 
-You should see something that looks like:
-(stdin)= a1b2c3d4e5f6... (64-character hash)
+- Running [Mailcow Dockerized](https://mailcow.email/) instance
+- `mailcow.conf` configured with:
+  - `CERTBOT_EMAIL`
+- Porkbun API credentials:
+  - `PORKBUN_API_KEY`
+  - `PORKBUN_SECRET_API_KEY`
 
-Take the hash and included it n a TLSA record in your domain like the following
+---
 
-Type: TLSA
+## Files in this repository
 
-Host: _25._tcp.mail
+| File | Description |
+|------|-------------|
+| `docker-compose.override.yml` | Overrides Mailcow Compose to add Certbot Porkbun service |
+| `deploy.sh` | Copies renewed `cert.pem` and `key.pem` from Certbot container to Mailcow assets folder with correct permissions |
 
-Value: 3 1 1 your_64_character_hash_here
+---
 
-#Note: When you click on the dns button, it make show this as timed out.  Ignore it as you are using the generate CA certs to create hash.
+## Setup Instructions
 
-Also add reuse_key= True in the following 
+1. **Place override and deploy script**
 
-sudo nano /data/assets/ssl/renewal/mail.putyourdomain.com.conf
+   Copy `docker-compose.override.yml` and `deploy.sh` into your Mailcow root directory (the same location as `docker-compose.yml` and `mailcow.conf`).
 
-#Add under the [renewalparams]
-reuse_key = True
+2. **Verify `mailcow.conf` contains required variables**
+
+   ```ini
+   CERTBOT_EMAIL=you@example.com
+   PORKBUN_API_KEY=xxxxxxxxxxxxxxxx
+   PORKBUN_SECRET_API_KEY=xxxxxxxxxxxxxxxx
