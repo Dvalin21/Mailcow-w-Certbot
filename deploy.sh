@@ -7,16 +7,16 @@ TARGET_DIR="/etc/letsencrypt"
 
 echo "[certbot] Deploying certificate for ${DOMAIN} to Mailcow..."
 
-# Copy real files (NO symlinks)
-cp -L "${LIVE_DIR}/cert.pem"      "${TARGET_DIR}/cert.pem"
+# Mailcow requires:
+# - cert.pem  -> fullchain.pem
+# - key.pem   -> privkey.pem
+# NO symlinks, real files only
+
+cp -L "${LIVE_DIR}/fullchain.pem" "${TARGET_DIR}/cert.pem"
 cp -L "${LIVE_DIR}/privkey.pem"   "${TARGET_DIR}/key.pem"
-cp -L "${LIVE_DIR}/chain.pem"     "${TARGET_DIR}/chain.pem"
-cp -L "${LIVE_DIR}/fullchain.pem" "${TARGET_DIR}/fullchain.pem"
 
 # Permissions Mailcow expects
 chmod 600 "${TARGET_DIR}/key.pem"
-chmod 644 "${TARGET_DIR}/cert.pem" \
-           "${TARGET_DIR}/chain.pem" \
-           "${TARGET_DIR}/fullchain.pem"
+chmod 644 "${TARGET_DIR}/cert.pem"
 
 echo "[certbot] Mailcow certificate deployment complete."
