@@ -108,6 +108,7 @@ The script:
 5. Place the following in your mailcow.conf
    ```
    # Porkbun API Challenge Keys
+   DOMAIN=*.example.com     #replace with your domain
    PORKBUN_API_KEY=your key
    PORKBUN_SECRET_API_KEY=your key
    CERTBOT_EMAIL=email address
