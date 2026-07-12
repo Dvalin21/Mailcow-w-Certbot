@@ -7,7 +7,7 @@ services:
       PORKBUN_API_KEY: ${PORKBUN_API_KEY}
       PORKBUN_SECRET_API_KEY: ${PORKBUN_SECRET_API_KEY}
       EMAIL: ${CERTBOT_EMAIL}
-      DOMAINS: ${MAILCOW_HOSTNAME}
+      DOMAINS: ${DOMAIN}   #Should be a wildcard for example   *.example.com
       PROPAGATION_TIME: 600
     volumes:
       - ./data/assets/ssl:/etc/letsencrypt:rw,z
@@ -27,7 +27,7 @@ services:
       - --email
       - ${CERTBOT_EMAIL}
       - -d
-      - ${MAILCOW_HOSTNAME}
+      - ${DOMAIN}
       - --deploy-hook
       - /etc/letsencrypt-renewal-hooks/deploy.sh
 
