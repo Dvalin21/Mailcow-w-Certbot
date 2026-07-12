@@ -1,22 +1,17 @@
 #!/bin/sh
 set -e
 
-DOMAIN="$(echo "$RENEWED_DOMAINS" | awk '{print $1}')"
-LIVE_DIR="/etc/letsencrypt/live/${DOMAIN}"
+# Certbot automatically provides the $RENEWED_LINEAGE variable pointing to the correct /live/ path.
 TARGET_DIR="/etc/letsencrypt"
 
-echo "[certbot] Deploying certificate for ${DOMAIN} to Mailcow..."
+echo "[certbot] Deploying Mailcow certificate from $RENEWED_LINEAGE..."
 
-# Mailcow requires:
-# - cert.pem  -> fullchain.pem
-# - key.pem   -> privkey.pem
-# NO symlinks, real files only
+# -L dereferences the symlink, copying the actual file.
+cp -Lf "$RENEWED_LINEAGE/fullchain.pem" "$TARGET_DIR/cert.pem"
+cp -Lf "$RENEWED_LINEAGE/privkey.pem" "$TARGET_DIR/key.pem"
 
-cp -L "${LIVE_DIR}/fullchain.pem" "${TARGET_DIR}/cert.pem"
-cp -L "${LIVE_DIR}/privkey.pem"   "${TARGET_DIR}/key.pem"
+# Mailcow warning: If Nginx/Postfix fail to read the key, change 600 to 640 or 644.
+chmod 644 "$TARGET_DIR/cert.pem"
+chmod 600 "$TARGET_DIR/key.pem"
 
-# Permissions Mailcow expects
-chmod 600 "${TARGET_DIR}/key.pem"
-chmod 644 "${TARGET_DIR}/cert.pem"
-
-echo "[certbot] Mailcow certificate deployment complete."
+echo "[certbot] Certificate copied successfully to Mailcow assets."
