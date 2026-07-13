@@ -1,5 +1,3 @@
----
-
 # Mailcow + Certbot (Porkbun DNS-01) — Wildcard TLS
 
 This repository issues a **wildcard Let's Encrypt certificate** for a Mailcow
