@@ -32,11 +32,17 @@ It contains two files:
 
 ---
 
-# Configuration (`.env`)
+# Configuration (`mailcow.conf`)
 
-Mailcow's `docker-compose` reads a `.env` file from the Mailcow directory.
-Create/extend it there with the following (do not change these values — they
-are what the override and deploy hook consume):
+Mailcow reads its configuration from `mailcow.conf`, and **`mailcow.conf` is
+also the file Docker Compose uses for variable substitution** — mailcow sets up
+a `.env` symlink (or redirect) that points at `mailcow.conf`. That is why the
+override's `${DOMAIN}`, `${PORKBUN_API_KEY}`, etc. resolve: Compose reads them
+from `mailcow.conf`.
+
+Add the following to `mailcow.conf` (do **not** create a separate `.env` file —
+a real `.env` would shadow the `mailcow.conf` symlink and the stack would lose
+all of mailcow's own variables):
 
 ```
 # Porkbun API Challenge Keys
@@ -46,7 +52,9 @@ PORKBUN_SECRET_API_KEY=your key
 CERTBOT_EMAIL=email address
 ```
 
-Also set `TZ` (used by the container), e.g. `TZ=UTC`.
+`TZ` is already present in `mailcow.conf` (set by `generate_config.sh`); make
+sure it is set. `SKIP_LETS_ENCRYPT=y` (see Prerequisites) also lives in
+`mailcow.conf`.
 
 ---
 
