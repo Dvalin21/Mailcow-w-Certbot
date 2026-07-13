@@ -23,10 +23,20 @@ It contains two files:
 
   ```
   SKIP_LETS_ENCRYPT=y
+  SKIP_IP_CHECK=y
+  SKIP_HTTP_VERIFICATION=y
   ```
 
-  This is **required**. Mailcow must not run its own ACME client, or it will
-  overwrite the certificate this repo manages.
+  - `SKIP_LETS_ENCRYPT=y` is **required**: Mailcow must not run its own ACME
+    client, or it will overwrite the certificate this repo manages.
+  - `SKIP_IP_CHECK=y` and `SKIP_HTTP_VERIFICATION=y` disable the ACME
+    container's public-IP and HTTP-01 reachability checks. They are required
+    when Mailcow is behind a reverse proxy or bound to ports other than 80/443
+    (the HTTP-01 challenge cannot reach Mailcow's web server, and the public
+    IP is the proxy's, not Mailcow's). With `SKIP_LETS_ENCRYPT=y` the ACME
+    container does not run, so these two are inert — but they are harmless and
+    correct for a proxied setup, and become mandatory if you ever enable
+    `acme-mailcow`.
 - Your router forwards ports **80/443 to your reverse proxy**, not to Mailcow.
   (This matters for the autoconfig/autodiscover note below.)
 
