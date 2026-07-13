@@ -127,37 +127,37 @@ autodiscover — plus IMAP/POP/SMTP TLS.
 
 ---
 
-# IMPORTANT — autoconfig / autodiscover behind a reverse proxy
+# IMPORTANT — Mailcow web UI, autoconfig / autodiscover behind a reverse proxy
 
-Mailcow serves `autoconfig.<domain>` and `autodiscover.<domain>` from its own
-`nginx-mailcow` container, and those names are covered by the wildcard cert
-**for any request that actually reaches Mailcow's port 443**.
+Mailcow serves its web UI (`mail.<domain>`), `autoconfig.<domain>`, and
+`autodiscover.<domain>` from its own `nginx-mailcow` container, and all three
+names are covered by the wildcard cert **for any request that actually reaches
+Mailcow's port 443**.
 
 But because your router sends 80/443 to the **reverse proxy** (Nginx Proxy
 Manager, Traefik, Caddy, etc.), external clients never hit Mailcow's 443
 directly. They hit the proxy, which terminates TLS. If the proxy has no entry
-for those two hostnames, the client gets the wrong cert (or a 404 / default
-cert), and autoconfig/autodiscover fail.
+for a hostname, the client gets the wrong cert (or a 404 / default cert).
 
-**You must add both hostnames as proxy hosts in whatever reverse proxy you
+**You must add all three hostnames as proxy hosts in whatever reverse proxy you
 use**, each pointing at the Mailcow server and serving the wildcard cert:
 
 | Proxy host              | Forward to            | Scheme  | Port | TLS cert        |
 | ----------------------- | --------------------- | ------- | ---- | --------------- |
+| `mail.example.com`      | `<mail-server-LAN-IP>`| `HTTPS` | `443`| your wildcard   |
 | `autoconfig.example.com`| `<mail-server-LAN-IP>`| `HTTPS` | `443`| your wildcard   |
 | `autodiscover.example.com`| `<mail-server-LAN-IP>`| `HTTPS`| `443`| your wildcard   |
 
 Concrete Nginx Proxy Manager steps:
 
-1. Add a Proxy Host for `autoconfig.example.com`:
+1. Add a Proxy Host for `mail.example.com`:
    - Scheme: **HTTPS**
    - Forward Hostname / IP: the LAN IP of the Mailcow server
    - Forward Port: **443**
    - SSL: select the wildcard certificate
    - Enable **Force SSL** and **HTTP/2**
-2. Repeat for `autodiscover.example.com`.
-3. (Optional) Repeat for `mail.example.com` if you expose the Mailcow web UI
-   externally.
+2. Repeat for `autoconfig.example.com`.
+3. Repeat for `autodiscover.example.com`.
 
 Use **HTTPS** to the backend, not HTTP. Mailcow's nginx redirects plaintext
 (80) to HTTPS (443); pointing the proxy at plaintext with "Force SSL" on
